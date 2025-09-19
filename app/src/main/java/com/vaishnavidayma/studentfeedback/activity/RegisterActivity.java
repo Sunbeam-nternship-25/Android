@@ -2,6 +2,7 @@ package com.vaishnavidayma.studentfeedback.activity;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Toast;
@@ -16,6 +17,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.vaishnavidayma.studentfeedback.R;
+import com.vaishnavidayma.studentfeedback.entity.Student;
 import com.vaishnavidayma.studentfeedback.utils.RetrofitClient;
 
 import java.util.ArrayList;
@@ -126,5 +128,36 @@ public class RegisterActivity extends AppCompatActivity {
 
 
 }
+
+
+    public void register(View view){
+        Student student = new Student();
+        student.setFirstName(editTextFirstName.getText().toString());
+        student.setLastName(editTextLastName.getText().toString());
+        student.setEmail(editTextEmail.getText().toString());
+        student.setPassword(editTextPassword.getText().toString());
+        student.setPrn_no(Integer.parseInt(editTextPRN.getText().toString()));
+        student.setCourse_name(autoCompleteCourse.getText().toString());
+        student.setGroup_name(autoCompleteGroup.getText().toString());
+
+
+        RetrofitClient.getInstance().getApi().registerStudent(student).enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                Toast.makeText(RegisterActivity.this,"Student Register SuccessFully" , Toast.LENGTH_SHORT).show();
+                finish();
+
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable throwable) {
+                Log.e("ERRError", "API call failed", throwable);
+                Toast.makeText(RegisterActivity.this,"Something went wrong", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+    }
 
 }
