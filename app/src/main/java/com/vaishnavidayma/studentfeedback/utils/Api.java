@@ -15,5 +15,10 @@ public interface Api {
     @POST ("/student/login")
     public Call<JsonObject> loginStudent(@Body Student student);
 
+    @GET ("/course/allCourses")
+    public Call<JsonObject> getAllCourses();
 
+
+    @POST("/group/groupbycourse/course_name")
+    Call<JsonObject> getGroupsByCourse(@Body JsonObject courseName);
 }
