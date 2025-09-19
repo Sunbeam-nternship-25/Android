@@ -38,6 +38,13 @@ public class MainActivity extends AppCompatActivity {
         editTextPassword= findViewById(R.id.editTextPassword);
         textView= findViewById(R.id.textView4);
 
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(MainActivity.this,RegisterActivity.class));
+
+            }
+        });
 
 
     }
