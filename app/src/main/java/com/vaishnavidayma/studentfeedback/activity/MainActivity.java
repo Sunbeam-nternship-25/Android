@@ -17,9 +17,6 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.JsonObject;
 import com.vaishnavidayma.studentfeedback.R;
-import com.vaishnavidayma.studentfeedback.entity.Student;
-import com.vaishnavidayma.studentfeedback.utils.Constants;
-import com.vaishnavidayma.studentfeedback.utils.RetrofitClient;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,15 +24,17 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextInputEditText editTextEmail,editTextPassword;
+    TextInputEditText editTextEmail, editTextPassword;
     TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
-       
+
+
     }
+
+}
 
   
