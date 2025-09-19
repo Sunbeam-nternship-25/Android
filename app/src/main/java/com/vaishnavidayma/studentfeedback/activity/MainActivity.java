@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
                 if(response.body().get("status").getAsString().equals("success")){
+                    JsonObject data = response.body().getAsJsonObject("data");
+                    String token = data.get("token").getAsString();
+
+                    SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("auth_token",token);
+                    editor.apply();
                     Toast.makeText(MainActivity.this, "Login SucessFully",Toast.LENGTH_SHORT).show();
 
                 }
