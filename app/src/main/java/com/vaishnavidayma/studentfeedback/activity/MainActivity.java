@@ -67,7 +67,9 @@ public class MainActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString("auth_token",token);
                     editor.apply();
-                    Toast.makeText(MainActivity.this, "Login SucessFully",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MainActivity.this, "Login SucessFully",Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this,FeedbackActivity.class);
+                    startActivity(intent);
 
                 }
             }
