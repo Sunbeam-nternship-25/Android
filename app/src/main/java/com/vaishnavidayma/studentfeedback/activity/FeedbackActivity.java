@@ -58,5 +58,27 @@ public class FeedbackActivity extends AppCompatActivity {
 
     }
 
- 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu,menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_profile) {
+            Intent intent = new Intent(FeedbackActivity.this,ProfileActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.action_logout) {
+            SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+            prefs.edit().clear().apply();  // clear saved token or user data
+            Intent intent = new Intent(FeedbackActivity.this, MainActivity.class);
+            startActivity(intent);
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
