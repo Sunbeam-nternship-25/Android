@@ -3,12 +3,14 @@ package com.vaishnavidayma.studentfeedback.activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -18,7 +20,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.vaishnavidayma.studentfeedback.R;
+import com.vaishnavidayma.studentfeedback.utils.RetrofitClient;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FeedbackActivity extends AppCompatActivity {
 
@@ -56,6 +65,7 @@ public class FeedbackActivity extends AppCompatActivity {
         feedbackForm = findViewById(R.id.feedbackForm);
         messageText= findViewById(R.id.messageText);
 
+        checkFeedback();
     }
 
     @Override
@@ -81,4 +91,113 @@ public class FeedbackActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    public void checkFeedback(){
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = sharedPreferences.getString("auth_token", null);
+
+        if(token != null){
+            RetrofitClient.getInstance().getApi().checkFeedback("Bearer "+token).enqueue(new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    if(response.isSuccessful() && response.body() != null){
+                        JsonObject res = response.body();
+                        if(res.get("status").getAsString().equals("success")){
+
+                            JsonObject data = res.getAsJsonObject("data");
+                            System.out.println(data);
+                            boolean submitted = data.get("submitted").getAsBoolean();
+                            boolean active = data.get("active").getAsBoolean();
+
+                            System.out.println(submitted);
+                            System.out.println(active);
+
+                            if (!active){
+                                feedbackForm.setVisibility(View.GONE);
+                                messageText.setVisibility(View.VISIBLE);
+                                messageText.setText("No active feedback schedule is available right now.");
+                            }else if(submitted){
+                                feedbackForm.setVisibility(View.GONE);
+                                messageText.setVisibility(View.VISIBLE);
+                                messageText.setText("You already submitted feedback.");
+
+                            }else {
+                                activeFeedback();
+                                feedbackForm.setVisibility(View.VISIBLE);
+                                messageText.setVisibility(View.GONE);
+
+
+                            }
+                        }
+
+
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable throwable) {
+
+                }
+            });
+
+        }
+
+
+
+
+
+
+    }
+
+
+    public void activeFeedback(){
+
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String token = sharedPreferences.getString("auth_token", null);
+        Log.e("token",token);
+
+
+        if (token != null) {
+            RetrofitClient.getInstance().getApi().getActiveFeedback("Bearer "+token).enqueue(new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    if(response.isSuccessful() && response.body() !=null){
+                        JsonObject res = response.body();
+
+                        if(res.get("status").getAsString().equals("success")){
+                            JsonArray data = res.getAsJsonArray("data");
+                            if(data.size() >0){
+                                JsonObject feedback = data.get(0).getAsJsonObject();
+
+                                String moduleType = feedback.get("module_type_name").getAsString();
+                                String module = feedback.get("module_name").getAsString();
+                                String faculty = feedback.get("first_name").getAsString() + " " + feedback.get("last_name").getAsString();
+                                String course = feedback.get("course_name").getAsString() + "(" + feedback.get("group_name").getAsString()+ ")";
+
+                                textView1.setText(moduleType);
+                                textView2.setText(module);
+                                textView3.setText(faculty);
+                                textView4.setText(course);
+                            }
+                        }
+                        else {
+                            Toast.makeText(FeedbackActivity.this, "No Active Feedback", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(FeedbackActivity.this, "Failed to load details", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable throwable) {
+                    Log.e("FeedbackAPI", "Error: ", throwable);
+                    Toast.makeText(FeedbackActivity.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+    }
+
+
 }
