@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -196,6 +197,75 @@ public class FeedbackActivity extends AppCompatActivity {
                 }
             });
         }
+
+    }
+
+    private int getSelectedAnswer(RadioGroup group){
+        int selectedId = group.getCheckedRadioButtonId();
+        if(selectedId == -1) return 0;
+        RadioButton rb = findViewById(selectedId);
+        String text = rb.getText().toString();
+
+        switch (text){
+            case "Excellent" : return 1;
+            case "Good": return 2;
+            case  "Satisfactory" : return 3;
+            case "Unsatisfactory" :return 4;
+            default: return 0;
+        }
+
+
+    }
+
+
+    public void submit(View view){
+        int q1 = getSelectedAnswer(radioGroupQ1);
+        int q2 = getSelectedAnswer(radioGroupQ2);
+        int q3 = getSelectedAnswer(radioGroupQ3);
+        int q4 = getSelectedAnswer(radioGroupQ4);
+        int q5 = getSelectedAnswer(radioGroupQ5);
+        String suggestion = (etComments.getText().toString());
+
+        JsonObject body = new JsonObject();
+        body.addProperty("q1",q1);
+        body.addProperty("q2",q2);
+        body.addProperty("q3",q3);
+        body.addProperty("q4",q4);
+        body.addProperty("q5",q5);
+        body.addProperty("suggestion",suggestion);
+
+        SharedPreferences sharedPreferences = getSharedPreferences("MyAppPrefs",MODE_PRIVATE);
+        String token = sharedPreferences.getString("auth_token",null);
+
+        if(token != null){
+            RetrofitClient.getInstance().getApi().submitFeedback("Bearer "+token,body).enqueue(new Callback<JsonObject>() {
+                @Override
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    if(response.isSuccessful() && response.body() != null){
+                        JsonObject res = response.body();
+                        if(res.get("status").getAsString().equals("success")){
+                            Toast.makeText(FeedbackActivity.this,"Feedback Submitted Sucessfully" ,Toast.LENGTH_SHORT).show();
+                            feedbackForm.setVisibility(View.GONE);
+                        }
+                        else {
+                            Toast.makeText(FeedbackActivity.this, res.get("error").getAsString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    else {
+                        Toast.makeText(FeedbackActivity.this, "Submit failed", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable throwable) {
+
+
+                }
+            });
+        }
+
+
 
     }
 
